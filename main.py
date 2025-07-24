@@ -7,9 +7,9 @@ import argparse # for command line arguments
 def main():
     parser = argparse.ArgumentParser(description="Photo and File Type Organizer")
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--by-date", action="store_true", help="Sort photos by date into YYYY/MMMM folders")
-    group.add_argument("--by-type", action="store_true", help="Sort photos by file type into PNG/JPG/.MP4/etc. folders")
-    parser.add_argument("--folder", default=".", help="Folder to organize (default: current directory)")
+    group.add_argument("-d","--by-date", action="store_true", help="Sort photos by date into YYYY/MMMM folders")
+    group.add_argument("-t","--by-type", action="store_true", help="Sort photos by file type into PNG/JPG/.MP4/etc. folders")
+    parser.add_argument("-f","--folder", required= True, help="Folder to organize (default: current directory)")
     args = parser.parse_args()
 
     folder_path = Path(args.folder) # take user inputted path and send to Path
@@ -27,8 +27,6 @@ def main():
 """Sorts the metadat of files, creates appropriate directories, and moves files to newly created directories"""
 def sort_by_date(folder_path):
 
-    print(folder_path)
-    print(type(folder_path))
     try:
         # files = [x for x in folder_path.glob('*.png') if folder_path.is_dir()] + [y for y in folder_path.glob('*.jpg') if y.dir()] # add generator to list and search for the specified file types
         files = list(folder_path.glob('*.[jp][pn][gf]'))  # Matches .jpg, .jpeg, .png
@@ -56,6 +54,10 @@ def sort_by_date(folder_path):
             creation_time = datetime.fromtimestamp(stat.st_ctime)
             # creation_time = datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
             # print(creation_time)
+        
+        except Exception as e:
+            print(f"Error couldn't get metadata from files: {e}")
+            exit()
 
         # append metadata to later be sorted
         file_data.append((file, creation_time, mod_time))
@@ -98,6 +100,9 @@ def sort_by_type(folder_path):
             exit()
     except FileNotFoundError:
         print(f"Directory {folder_path} not found")
+        exit()
+    except Exception as e:
+        print(f"Error processing files: {e}")
         exit()
 
     created_directories = []
