@@ -22,17 +22,20 @@ def image_generator(directory_name):
     os.makedirs(directory_name, exist_ok=True)
 
     # create the dummy images and create list of their names
-    for dummy_image in range(5):
+    file_extension = ["png","jpg","gif"]
+    for dummy_image in range(8):
         n,m = 1080, 1920 # set size of image Length x Width
         # create a new image for each iteration
         image = Image.new('RGB', (n, m), color = (200,100,50))
 
+    
         # create the files and join to the new directory
-        image_filename = f'image{dummy_image}.png'
+        image_filename = f'image{dummy_image}.{random.choice(file_extension)}'
         image_path = os.path.join(directory_name, image_filename)
 
+        
         # save image to the directory
-        image.save(image_path, 'PNG')
+        image.save(image_path, "PNG")
 
         # append the full path to the image name list
         image_path_list.append(image_path)

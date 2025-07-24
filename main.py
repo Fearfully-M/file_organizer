@@ -8,7 +8,8 @@ def main():
     parser = argparse.ArgumentParser(description="Photo and File Type Organizer")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-d","--by-date", action="store_true", help="Sort photos by date into YYYY/MMMM folders")
-    group.add_argument("-t","--by-type", action="store_true", help="Sort photos by file type into PNG/JPG/.MP4/etc. folders")
+    group.add_argument("-t","--by-type", action="store_true", help="Sort files by file type into PNG/JPG/.MP4/etc. folders")
+    group.add_argument("-c","--by-category", action="store_true", help="Sort files by similar medium type i.e. Music,Photos, Videos")
     parser.add_argument("-f","--folder", required= True, help="Folder to organize (default: current directory)")
     args = parser.parse_args()
 
@@ -19,12 +20,14 @@ def main():
 
     if args.by_date:
         sort_by_date(folder_path)
+    elif args.by_category:
+        sort_by_category(folder_path)
     elif args.by_type:
         sort_by_type(folder_path)
 
 
 
-"""Sorts the metadat of files, creates appropriate directories, and moves files to newly created directories"""
+"""Sorts the metadata of files, creates appropriate directories, and moves files to newly created directories"""
 def sort_by_date(folder_path):
 
     try:
@@ -91,6 +94,7 @@ def sort_by_date(folder_path):
         # Move file - rename renames and moves files
         file_path[0].rename(target_path)
 
+"""Sorts through the files, creates directories with each file extension, sorts files into the matching file extension directory"""
 def sort_by_type(folder_path):
     try:
         files = list(folder_path.glob('*'))  # find all file types
@@ -135,8 +139,70 @@ def sort_by_type(folder_path):
         #Move file - rename renames and moves files
         file_path.rename(target_path)
 
+"""Sorts through the files, creates directories for each similar file extension i.e. movie, phtotos, music, then sorts files into the apropriate directory"""
+def sort_by_category(folder_path):
+
+    try:
+        files = list(folder_path.glob('*'))  # finds all files
+        if not files:
+            print("No files were found")
+            exit()
+    except FileNotFoundError:
+        print(f"Directory {folder_path} not found")
+        exit()
+
+
+    category_directories = []
+    for file_path in files:
+        
+        # get the stem and suffix for each file
+        folder_name = get_file_ext(file_path)
+    
+        # ensure created directory is not created each time the same file type is found
+        if folder_name not in category_directories:category_directories.append(folder_name)
+
+        # create the target organized folder
+        target_folder = Path("") /folder_name
+        target_folder.mkdir(parents=True,exist_ok=True)
+
+        # Build target path
+        target_path = target_folder / file_path.name
+    
+        # Handle duplicates
+        counter = 1
+        while target_path.exists():
+            base, ext = file_path.stem, file_path.suffix
+            target_path = target_folder / f"{base}_{counter}{ext}" # keep incrementing if it exists
+            counter += 1
+        
+        #Move file - rename renames and moves files
+        file_path.rename(target_path)
+        
+    
+"""Gets file extensions for each file path and groups them in the appropriate category"""
+def get_file_ext(file_path):
+    # tuples of common image, audio, and video extensions
+    image_extensions = (
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'heic', 'svg')
+    audio_extensions = (
+    'mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a', 'aiff', 'alac')
+    video_extensions = (
+    'mp4', 'mkv', 'mov', 'avi', 'wmv', 'flv', 'webm', 'mpeg', '3gp', 'm4v')
+
+    # get the suffix for each file
+    file_ext = file_path.suffix
+    ext = file_ext[1:].lower()
+
+    # determine which category the file extension belongs to
+    if ext in image_extensions:
+        return 'Images'
+    elif ext in audio_extensions:
+        return 'Audio'
+    elif ext in video_extensions:
+        return 'Videos'
+    else:
+        return 'Other'
 
 
 if __name__ == "__main__":
-    main()
-
+    main() 
