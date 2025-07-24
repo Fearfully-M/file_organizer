@@ -27,8 +27,8 @@ This is all that's needed for the organization file. If you want to generate fil
 ## Installation for file generation
 1. Clone or download the repository:
    ```bash
-   git clone https://github.com/yourusername/photo-organizer.git
-   cd photo-organizer
+   git clone https://github.com/Fearfully-M/file_organizer.git
+   cd file_organizer
 
 
 
