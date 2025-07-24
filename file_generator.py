@@ -51,7 +51,7 @@ def image_generator(directory_name):
     return image_path_list
 
 """Generates sound files to see how the file organizer works"""
-def sound_generator(directory_name, audio_source="naughty_sounds.mp3"):
+def sound_generator(directory_name, audio_source="generator_core/naughty_sounds.mp3"):
     sound_path_list = []
     os.makedirs(directory_name, exist_ok=True)
     sound_extensions = ['mp3', 'wav', 'flac']
@@ -82,7 +82,7 @@ def sound_generator(directory_name, audio_source="naughty_sounds.mp3"):
     return sound_path_list
 
 """Generates video files to see how the file organizer works"""
-def video_generator(directory_name, source_video="super_evil_video.mp4"):
+def video_generator(directory_name, source_video="generator_core/super_evil_video.mp4"):
     video_path_list = []
     os.makedirs(directory_name, exist_ok=True)
     video_extensions = ['mp4', 'mkv', 'mov']
