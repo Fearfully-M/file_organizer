@@ -12,30 +12,31 @@ def main():
     parser.add_argument("--folder", default=".", help="Folder to organize (default: current directory)")
     args = parser.parse_args()
 
-    folder_path = Path(args.folder)
+    folder_path = Path(args.folder) # take user inputted path and send to Path
     if not folder_path.exists() or not folder_path.is_dir():
         print(f"Error: {folder_path} is not a valid directory")
         return
 
     if args.by_date:
-        sort_by_date()
+        sort_by_date(folder_path)
     elif args.by_type:
-        sort_by_type()
-
+        sort_by_type(folder_path)
 
 
 
 """Sorts the metadat of files, creates appropriate directories, and moves files to newly created directories"""
-def sort_by_date():
+def sort_by_date(folder_path):
 
-    p = Path(r'MessyPhotos')# get all files
+    print(folder_path)
+    print(type(folder_path))
     try:
-        files = [x for x in p.glob('*.png') if x.is_file()] + [y for y in p.glob('*.jpg') if y.is_file()] # add generator to list and search for the specified file types
+        # files = [x for x in folder_path.glob('*.png') if folder_path.is_dir()] + [y for y in folder_path.glob('*.jpg') if y.dir()] # add generator to list and search for the specified file types
+        files = list(folder_path.glob('*.[jp][pn][gf]'))  # Matches .jpg, .jpeg, .png
         if not files:
             print("No .jpg or .png files were found")
             exit()
     except FileNotFoundError:
-        print(f"Directory {p} not found")
+        print(f"Directory {folder_path} not found")
         exit()
 
     file_data = []
@@ -88,15 +89,15 @@ def sort_by_date():
         # Move file - rename renames and moves files
         file_path[0].rename(target_path)
 
-def sort_by_type():
-    p = Path(r'MessyPhotos')# get all files
+def sort_by_type(folder_path):
     try:
-        files = [x for x in p.glob('*') if x.is_file()] # add generator to list and search for the specified file types
+        files = list(folder_path.glob('*'))  # find all file types
+        # files = [x for x in folder_path.glob('*') if folder_path.is_file()] # add generator to list and search for the specified file types
         if not files:
             print("No files were found")
             exit()
     except FileNotFoundError:
-        print(f"Directory {p} not found")
+        print(f"Directory {folder_path} not found")
         exit()
 
     created_directories = []
@@ -106,7 +107,7 @@ def sort_by_type():
         #file_stem = file_path.stem
         file_suffix = file_path.suffix 
 
-        folder_name_suffix = file_suffix[1:]
+        folder_name_suffix = file_suffix[1:].lower()
         #print(folder_name)
 
         # ensure created directory is not created each time the same file type is found
