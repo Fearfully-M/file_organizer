@@ -1,6 +1,6 @@
 # Photo, File, and File Category Organizer
 
-A Python command-line tool to organize image files (.png, .jpg, .jpeg) into folders by date or file type or by media category.
+A Python command-line tool to organize image files, video, and/or audio files into folders by date or file type or by media category.
 
 Also includes an additional script for optional dummy file generation to test organization capabilties of the program
 This requires dependencies unlike the main program which only uses standard Python modules
