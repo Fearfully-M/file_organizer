@@ -2,9 +2,15 @@ from PIL import Image # for creating images
 import os # to handle files and metadata 
 import time # to get access to the time metadata
 import random
+from pydub import AudioSegment # used for clipping audio segments
+import shutil # checkes for dependencies 
+from moviepy import VideoFileClip
+
+def check_ffmpeg():
+    if not shutil.which('ffmpeg'):
+        raise EnvironmentError("FFmpeg is not installed or not found as a PATH variable. Make sure it is installed on your system 'brew install ffmpeg on macOS")
 
 def main():
-
     directory_name = "MessyFolder"
     # creates images and sets the names to a list
     image_list = image_generator(directory_name)
@@ -45,58 +51,69 @@ def image_generator(directory_name):
     return image_path_list
 
 """Generates sound files to see how the file organizer works"""
-def sound_generator(directory_name):
-    sound_path_list = [] # store sound paths
-    # generate "dummy" sounds
-
-    # make a new directory for the photos if it doesn't exist
+def sound_generator(directory_name, audio_source="naughty_sounds.mp3"):
+    sound_path_list = []
     os.makedirs(directory_name, exist_ok=True)
-
-    # create the dummy sounds and create list of their names
-    sound_extension = ['mp3', 'wav', 'flac', 'aac']
-    for dummy_image in range(8):
-        n,m = 1080, 1920 # set size of image Length x Width
-        # create a new image for each iteration
-        image = Image.new('RGB', (n, m), color = (200,100,50))
+    sound_extensions = ['mp3', 'wav', 'flac']
     
-        # create the files and join to the new directory
-        image_filename = f'image{dummy_image}.{random.choice(sound_extension)}'
-        image_path = os.path.join(directory_name, image_filename)
-
-        # save image to the directory
-        image.save(image_path, "PNG")
-
-        # append the full path to the image name list
-        sound_path_list.append(image_path)
-
+    # Load source audio
+    try:
+        audio = AudioSegment.from_file(audio_source)
+    except FileNotFoundError:
+        print(f"Source audio {audio_source} not found. Place it in the same directory as this script.")
+        return sound_path_list
+    
+    # Generate 8 dummy audio clips
+    for dummy_audio in range(8):
+        # Clip a random 5-second segment
+        duration_ms = len(audio)
+        start_ms = random.randint(0, max(0, duration_ms - 5000))  # Ensure doesn't exceed max audio length
+        clip = audio[start_ms:start_ms + 5000]  # 5-second clip
+        
+        # Choose random extension
+        ext = random.choice(sound_extensions)
+        sound_filename = f'sound{dummy_audio}.{ext}'
+        sound_path = os.path.join(directory_name, sound_filename)
+        
+        # Export clip in the chosen format
+        clip.export(sound_path, format=ext)
+        sound_path_list.append(sound_path)
+    
     return sound_path_list
-    audio_extension = ['mp3', 'wav', 'flac', 'aac']
 
 """Generates video files to see how the file organizer works"""
-def video_generator(directory_name):
-    video_path_list = [] # store video paths
-    # generate "dummy" videos
-
-    # make a new directory for the videos if it doesn't exist
+def video_generator(directory_name, source_video="super_evil_video.mp4"):
+    video_path_list = []
     os.makedirs(directory_name, exist_ok=True)
-
-    # create the dummy videos and create list of their names
-    video_extension = ['mp4', 'mkv', 'mov']
-    for dummy_image in range(8):
-        n,m = 1080, 1920 # set size of image Length x Width
-        # create a new image for each iteration
-        image = Image.new('RGB', (n, m), color = (200,100,50))
+    video_extensions = ['mp4', 'mkv', 'mov']
     
-        # create the files and join to the new directory
-        image_filename = f'image{dummy_image}.{random.choice(video_extension)}'
-        image_path = os.path.join(directory_name, image_filename)
-
-        # save image to the directory
-        image.save(image_path, "PNG")
-
-        # append the full path to the image name list
-        video_path_list.append(image_path)
-
+    if VideoFileClip is None:
+        print("Skipping video generation: moviepy not installed.")
+        return video_path_list
+    try:
+        video = VideoFileClip(source_video)
+    except FileNotFoundError:
+        print(f"Source video {source_video} not found. Place it in the same directory as this script.")
+        return video_path_list
+    except Exception as e:
+        print(f"Error loading video: {e}")
+        return video_path_list
+    
+    try:
+        for dummy_video in range(8):
+            duration_s = video.duration
+            start_s = random.uniform(0, max(0, duration_s - 5)) # ensure the clip isn't at the last 5 seconds of the video
+            clip = video.subclipped(start_s, start_s + 5)
+            ext = random.choice(video_extensions)
+            video_filename = f'video{dummy_video}.{ext}'
+            video_path = os.path.join(directory_name, video_filename)
+            clip.write_videofile(video_path, codec="libx264", audio_codec="aac")
+            video_path_list.append(video_path)
+    except Exception as e:
+        print(f"Error generating video clips: {e}")
+    finally:
+        video.close()
+    
     return video_path_list
 
 """randomizes creation time of pictures"""
