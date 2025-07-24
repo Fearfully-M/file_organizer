@@ -26,13 +26,14 @@ def main():
         sort_by_type(folder_path)
 
 
-
 """Sorts the metadata of files, creates appropriate directories, and moves files to newly created directories"""
 def sort_by_date(folder_path):
 
     try:
+        extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'heic', 'svg', 'mp4', 'mkv', 'mov', 'avi', 'wmv', 'flv', 'webm', 'mpeg', '3gp', 'm4v']
         # files = [x for x in folder_path.glob('*.png') if folder_path.is_dir()] + [y for y in folder_path.glob('*.jpg') if y.dir()] # add generator to list and search for the specified file types
-        files = list(folder_path.glob('*.[jp][pn][gf]'))  # Matches .jpg, .jpeg, .png
+        files = [file for ext in extensions for file in folder_path.glob(f'*.{ext}')]
+        # files = list(folder_path.glob(f'*.{ext}'))  # Matches .jpg, .jpeg, .png
         if not files:
             print("No .jpg or .png files were found")
             exit()
@@ -177,8 +178,7 @@ def sort_by_category(folder_path):
         
         #Move file - rename renames and moves files
         file_path.rename(target_path)
-        
-    
+
 """Gets file extensions for each file path and groups them in the appropriate category"""
 def get_file_ext(file_path):
     # tuples of common image, audio, and video extensions
